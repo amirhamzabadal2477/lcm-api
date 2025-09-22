@@ -1,52 +1,47 @@
 const express = require('express');
 const app = express();
-const port = 8080;
+const PORT = process.env.PORT || 3000;
 
-// Function to calculate GCD
+// Fast GCD function
 function gcd(a, b) {
-    if (b === 0) return a;
-    return gcd(b, a % b);
+    while (b !== 0) {
+        const temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
 }
 
-// Function to calculate LCM
+// Fast LCM function
 function lcm(a, b) {
     return (a * b) / gcd(a, b);
 }
 
-// LCM calculation function
-function calculateLCM(x, y) {
-    const numX = parseInt(x);
-    const numY = parseInt(y);
-    
-    if (isNaN(numX) || isNaN(numY) || numX <= 0 || numY <= 0 || !Number.isInteger(numX) || !Number.isInteger(numY)) {
-        return 'NaN';
-    }
-    
-    return lcm(numX, numY).toString();
-}
-
-// ===== REQUIRED ENDPOINT FOR SUBMISSION =====
-app.get('/amirhamzabadal2477_gmail_com/lcm', (req, res) => {
-    const result = calculateLCM(req.query.x, req.query.y);
-    res.setHeader('Content-Type', 'text/plain');
-    res.send(result);
-});
-
-// ===== EXISTING ENDPOINTS =====
+// Root endpoint
 app.get('/', (req, res) => {
     res.setHeader('Content-Type', 'text/plain');
-    res.send('LCM API is running. Use /amirhamzabadal2477_gmail_com/lcm?x=num&y=num');
+    res.send('LCM API is running. Use /amirhamzabadal2477_gmail_com?x=number&y=number');
 });
 
-app.get('/lcm', (req, res) => {
-    const result = calculateLCM(req.query.x, req.query.y);
+// Required endpoint - email as path
+app.get('/amirhamzabadal2477_gmail_com', (req, res) => {
+    const x = parseInt(req.query.x);
+    const y = parseInt(req.query.y);
+    
     res.setHeader('Content-Type', 'text/plain');
-    res.send(result);
+    
+    // Validate natural numbers
+    if (isNaN(x) || isNaN(y) || x < 1 || y < 1 || !Number.isInteger(x) || !Number.isInteger(y)) {
+        return res.send('NaN');
+    }
+    
+    const result = lcm(x, y);
+    res.send(result.toString());
 });
 
 // Start server
-app.listen(port, () => {
-    console.log('🚀 Server started!');
-    console.log('📍 Local: http://localhost:8080');
-    console.log('📝 Submission endpoint: /amirhamzabadal2477_gmail_com/lcm?x=4&y=6');
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
