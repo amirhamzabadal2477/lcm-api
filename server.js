@@ -2,42 +2,26 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// GCD function
+// Remove all bloat for maximum speed
+app.disable('x-powered-by');
+
+// Ultra-fast GCD (minimal operations)
 function gcd(a, b) {
-    return b === 0 ? a : gcd(b, a % b);
+    while (b) [a, b] = [b, a % b];
+    return a;
 }
 
-// LCM function
-function lcm(a, b) {
-    return (a * b) / gcd(a, b);
-}
-
-// Root endpoint
-app.get('/', (req, res) => {
-    res.setHeader('Content-Type', 'text/plain');
-    res.send('LCM API Running');
-});
-
-// Required endpoint
 app.get('/amirhamzabadal2477_gmail_com', (req, res) => {
-    try {
-        const x = parseInt(req.query.x);
-        const y = parseInt(req.query.y);
-        
+    const x = +req.query.x, y = +req.query.y;
+    
+    // Ultra-fast validation
+    if (!(x > 0 && y > 0 && x === (x | 0) && y === (y | 0))) {
         res.setHeader('Content-Type', 'text/plain');
-        
-        if (isNaN(x) || isNaN(y) || x < 1 || y < 1) {
-            return res.send('NaN');
-        }
-        
-        const result = lcm(x, y);
-        res.send(result.toString());
-    } catch (error) {
-        res.send('NaN');
+        return res.send('NaN');
     }
+    
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(((x * y) / gcd(x, y)).toString());
 });
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, '0.0.0.0');
