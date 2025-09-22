@@ -2,54 +2,41 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Remove all middleware for maximum speed
+// Remove ALL middleware and bloat for maximum speed
 app.disable('x-powered-by');
+app.disable('etag'); // Remove ETag generation
 
-// Ultra-fast iterative GCD (no recursion)
+// Ultra-fast GCD (minimal operations, no recursion)
 function gcd(a, b) {
-    let temp;
     while (b !== 0) {
-        temp = b;
+        const t = b;
         b = a % b;
-        a = temp;
+        a = t;
     }
     return a;
 }
 
-// Fast LCM
-function lcm(a, b) {
-    return (a * b) / gcd(a, b);
-}
-
-// Required endpoint - optimized
+// Single endpoint only - no root handler
 app.get('/amirhamzabadal2477_gmail_com', (req, res) => {
-    // Set headers first for speed
+    // Set header immediately
     res.setHeader('Content-Type', 'text/plain');
     
-    // Fast parameter parsing
-    const x = parseInt(req.query.x, 10);
-    const y = parseInt(req.query.y, 10);
+    // Fastest parameter parsing and validation
+    const x = parseInt(req.query.x);
+    const y = parseInt(req.query.y);
     
-    // Quick validation
-    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 1 || y < 1) {
+    // Bitwise check for integers > 0 (fastest method)
+    if (!(x > 0 && y > 0 && x === (x | 0) && y === (y | 0))) {
         return res.send('NaN');
     }
     
-    // Calculate and send
-    try {
-        const result = lcm(x, y);
-        res.send(result.toString());
-    } catch (error) {
-        res.send('NaN');
-    }
+    // Calculate and send in one operation
+    const result = (x * y) / gcd(x, y);
+    res.send(result.toString());
 });
 
-// No root endpoint to avoid confusion
-app.use((req, res) => {
-    res.setHeader('Content-Type', 'text/plain');
-    res.send('Use /amirhamzabadal2477_gmail_com?x=number&y=number');
-});
+// No 404 handler - let it return default 404 for other paths
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log('Server optimized and running on port', PORT);
+    console.log('Ultra-optimized server running on port', PORT);
 });
